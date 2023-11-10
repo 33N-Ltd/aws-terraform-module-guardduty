@@ -79,6 +79,7 @@ resource "aws_iam_role" "kinesis_event_role" {
 }
 
 data "aws_iam_policy_document" "kinesis_event_policy_doc" {
+  count = var.kinesis_enabled ? 1 : 0
   statement {
     effect = "Allow"
 
@@ -95,11 +96,11 @@ data "aws_iam_policy_document" "kinesis_event_policy_doc" {
 
 resource "aws_iam_policy" "kinesis_event_policy" {
   name_prefix = "guardduty-kinesis-event-"
-  policy = data.aws_iam_policy_document.kinesis_event_policy_doc.json
+  policy = data.aws_iam_policy_document.kinesis_event_policy_doc[0].json
   count = var.kinesis_enabled ? 1 : 0
 }
 
-resource "aws_iam_role_policy_attachment" "kinesis_event_attachement" {
+resource "aws_iam_role_policy_attachment" "kinesis_event_attachment" {
   role = aws_iam_role.kinesis_event_role[0].name
   policy_arn = aws_iam_policy.kinesis_event_policy[0].arn
   count = var.kinesis_enabled ? 1 : 0
@@ -201,7 +202,7 @@ resource "aws_iam_policy" "kinesis_delivery_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "kinesis_delivery_attachement" {
+resource "aws_iam_role_policy_attachment" "kinesis_delivery_attachment" {
   role = aws_iam_role.kinesis_delivery_role[0].name
   policy_arn = aws_iam_policy.kinesis_delivery_policy[0].arn
   count = var.kinesis_enabled ? 1 : 0
